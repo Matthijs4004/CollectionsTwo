@@ -1,9 +1,9 @@
 
 
 boodschap = 0
-
 itemList = []
 itemDict = {}
+
 while boodschap == 0:
     item = input("Welk product heeft u nodig? ")
     qty = int(input("Hoeveel "+ item +" heeft u nodig? "))
