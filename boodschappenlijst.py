@@ -14,7 +14,7 @@ while boodschap == 0:
             itemDict[item] += 1
     print(itemDict)
     
-    question = input("Wil je nog iets op het boodschappenlijstje zetten? ")
+    question = input("Wil je nog iets op het boodschappenlijstje zetten? ").lower()
     if question == "nee":
         print("\nDit is uw boodschappenlijstje:\n" + str(itemDict))
         break
