@@ -18,11 +18,3 @@ while boodschap == 0:
     if question == "nee":
         print("\nDit is uw boodschappenlijstje:\n" + str(itemDict))
         break
-
-
-
-
-        
-
-
-
