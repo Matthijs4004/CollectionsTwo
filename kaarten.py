@@ -1,8 +1,4 @@
 import random
-#kaarten.py
-
-#Het deck bestaat uit 4 “kleuren” (harten, klaveren, schoppen & ruiten)
-#Iedere kleur heeft 13 kaarten (2 t/m 10, een boer, een vrouw, een heer en een aas) ook 2 jokers
 
 kaarten = ["kaart 1", "kaart 2", "kaart 3", "kaart 4", "kaart 5", "kaart 6", "kaart 7"]
 harten = ["harten boer " , "harten vrouw" , "harten heer" , "harten aas" , "harten 2" , "harten 3", "harten 4", "harten 5", "harten 6", "harten 7", "harten 8", "harten 9", "harten 10"]
@@ -12,6 +8,7 @@ ruiten = ["ruiten boer", "ruiten vrouw", "ruiten heer", "ruiten aas" , "ruiten 2
 spelKaarten = harten + klaveren + schoppen + ruiten + ["joker", "joker"]
 random.shuffle(spelKaarten)
 
-for item_a, item_b in zip(kaarten, random.choices(spelKaarten, k=7)):
-    print(item_a + ":", item_b)
-print("\ndeck:" ,spelKaarten)
+for itemA, itemB in zip(kaarten, random.choices(spelKaarten, k=7)):
+    print(itemA + ":", itemB)
+    spelKaarten.remove(itemB)
+print("\ndeck (47 kaarten):" ,spelKaarten)

@@ -35,7 +35,3 @@ while names1:
         print(name1 + " heeft " + name2 + " als lootje getrokken.\n")
         names1.remove(name1)
         names2.remove(name2)
-
-
-
-
