@@ -213,4 +213,6 @@ def checkSmallStraight(SmallStraightList):
         return True
     return False
 
-roll()
+
+for x in range(4):
+    roll()
