@@ -12,7 +12,7 @@ choiceCards = ["Wild","Wild","Wild","Wild"]
 takefourCards = ["Wild neem-vier","Wild neem-vier","Wild neem-vier","Wild neem-vier"]
 allCards = blueCards + redCards + yellowCards + greenCards + taketwoCards + reverseCards + skipturnCards + choiceCards + takefourCards
 pile = []
-
+Reverse = 0
 
 MainPlayerDeck = []
 player2Deck = []
@@ -50,7 +50,7 @@ nameList.remove(player10Name)
 splitCard = pile
 
 def gewonnen(name):
-    print(name,"heeft 0 kaarten over en heeft dus gewonnen.")
+    print("\n",name,"heeft 0 kaarten over en heeft dus gewonnen.")
 
 
 def clearConsole():
@@ -155,14 +155,16 @@ def kaartenVedelen(name):
                 break
 
 def beurtSpeler():
-    global cardAmount, playedCard
+    global cardAmount, playedCard, Reverse
     random.shuffle(allCards)
-    
+    if len(MainPlayerDeck) == 0:
+        print("\nJe hebt geen kaarten meer over en daarmee heb je het spel gewonnen, gefeliciteerd!")
+        exit()
     while True:
         print()
         mainDeck()
-        tegenstanderDeck()
-        print(pile)
+        #tegenstanderDeck()
+        #print(pile)
         print("Bovenste open kaart:",pile[-1])
         cardAmount = len(MainPlayerDeck)
         for i in range(cardAmount):
@@ -173,7 +175,7 @@ def beurtSpeler():
         elif playedCard == 0:
             MainPlayerDeck.append(random.choice(allCards))
             print("\nJe hebt een kaart van de stapel gepakt.\n")
-            break
+            AI2(player2Name)
         else:
             splitCard = pile[-1].split(" ",1)
             splitCard2 = MainPlayerDeck[(playedCard-1)].split(" ",1)
@@ -183,32 +185,51 @@ def beurtSpeler():
             playedValue = splitCard2[-1]
             if currentColor == playedColor or currentValue == playedValue:
                 if playedValue == "neem-twee":
-                    print("Je hebt neem-twee opgelegd, de volgende speler pakt 2 kaarten")
-                    print(player2Name,"krijgt 2 kaarten")
-                    player2Deck.append(random.choice(allCards))
-                    player2Deck.append(random.choice(allCards))
+                    print("\nJe hebt neem-twee opgelegd, de volgende speler pakt 2 kaarten")
+                    print(player2Name,"krijgt 2 kaarten\n")
+                    removeCard = MainPlayerDeck[playedCard-1]
+                    pile.append(removeCard)
+                    MainPlayerDeck.pop(playedCard - 1)
+                    for x in range(2):
+                        plusTwee = random.choice(allCards)
+                        player2Deck.append(plusTwee)
+                        allCards.remove(plusTwee)
+                    AI2(player2Name)
+                elif playedValue == "neem-vier":
+                    print("\nJe hebt neem-vier opgelegd, de volgende speler pakt 4 kaarten")
+                    print(player2Name,"krijgt 4 kaarten\n")
+                    removeCard = MainPlayerDeck[playedCard-1]
+                    pile.append(removeCard)
+                    MainPlayerDeck.pop(playedCard - 1)
+                    for x in range(4):
+                        plusTwee = random.choice(allCards)
+                        player2Deck.append(plusTwee)
+                        allCards.remove(plusTwee)
+                    AI2(player2Name)
                 else:
                     removeCard = MainPlayerDeck[playedCard-1]
                     pile.append(removeCard)
                     MainPlayerDeck.pop(playedCard - 1)
-                    break
+                    AI2(player2Name)
             elif playedColor == "Wild" or currentColor == "Wild":
                 removeCard = MainPlayerDeck[playedCard-1]
                 pile.append(removeCard)
                 MainPlayerDeck.pop(playedCard - 1)
-                break
+                AI2(player2Name)
             else:
                 print("\nDat is niet de juiste kleur.\n")
                 beurtSpeler()
 
-def beurtAI(name):
-    global x
+def AI2(name):
     print(name,"is aan de beurt.")
     time.sleep(0.5)
     possible = []
     x = 0
-    if name == player2Name:
-        for i in range(len(player2Deck)):
+    global Reverse
+    if len(player2Deck) == 0:
+        print("\n",name,"hebt geen kaarten meer over en daarmee heb je het spel gewonnen, gefeliciteerd!")
+        exit()
+    for i in range(len(player2Deck)):
             card = player2Deck[x]
             split = card.split(" ",1)
             split2 = pile[-1].split(" ",1)
@@ -223,27 +244,53 @@ def beurtAI(name):
                     possible.append(card)
                     possibleR = random.choice(possible)
             x+=1
-        if len(possible) == 0:
-            player2Deck.append(random.choice(allCards))
-            print(player2Name,"heeft een kaart gepakt.")
-        elif len(possible) > 0:
-            print(player2Name, "heeft",possibleR,"gespeeld.")
-            pile.append(possibleR)
-            posSplit = possibleR.split(" ",1)
-            if posSplit[-1] == "neem-twee":
-                print(player2Name,"heeft neem-twee opgelegd, je krijgt dus 2 kaarten")
-                if playerAmount > 3:
-                    player3Deck.append(random.choice(allCards))
-                    player3Deck.append(random.choice(allCards))
-                elif playerAmount == 2:
-                    MainPlayerDeck.append(random.choice(allCards))
-                    MainPlayerDeck.append(random.choice(allCards))
-            player2Deck.remove(possibleR)
-        if playerAmount == 2:
-            time.sleep(1)
-            beurtSpeler()
-    if name == player3Name:
-        for i in range(len(player3Deck)):
+    if len(possible) == 0:
+        player2Deck.append(random.choice(allCards))
+        print(name,"heeft een kaart gepakt.")
+    elif len(possible) > 0:
+        print(name, "heeft",possibleR,"gespeeld.")
+        pile.append(possibleR)
+        posSplit = possibleR.split(" ",1)
+        if posSplit[-1] == "neem-twee":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 3:
+                for x in range(2):
+                    neemTwee2 = random.choice(allCards)
+                    player3Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 2:
+                for x in range(2):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+        elif posSplit[-1] == "neem-vier":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 3:
+                for x in range(4):
+                    neemTwee2 = random.choice(allCards)
+                    player3Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 2:
+                for x in range(4):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+    if playerAmount == 2:
+        time.sleep(1)
+        beurtSpeler()
+    elif playerAmount >= 3:
+        time.sleep(1)
+        AI3(player3Name)
+
+def AI3(name):
+    print(name,"is aan de beurt.")
+    time.sleep(0.5)
+    possible = []
+    x = 0
+    if len(player3Deck) == 0:
+        print("\n",name,"hebt geen kaarten meer over en daarmee heb je het spel gewonnen, gefeliciteerd!")
+        exit()
+    for i in range(len(player3Deck)):
             card = player3Deck[x]
             split = card.split(" ",1)
             split2 = pile[-1].split(" ",1)
@@ -254,43 +301,468 @@ def beurtAI(name):
                 if split[0] == split2[0]:
                     possible.append(card)
                     possibleR = random.choice(possible)
-                if split[1] == split2[1]:
+                if split[-1] == split2[-1]:
                     possible.append(card)
                     possibleR = random.choice(possible)
             x+=1
-        if len(possible) == 0:
-            player3Deck.append(random.choice(allCards))
-            print(player3Name,"heeft een kaart gepakt.")
-        elif len(possible) > 0:
-            print(player3Name, "heeft",possibleR,"gespeeld.")
-            pile.append(possibleR)
-            posSplit = possibleR.split(" ",1)
-            if posSplit[-1] == "neem-twee":
-                print(player3Name,"heeft neem-twee opgelegd, je krijgt dus 2 kaarten")
-                if playerAmount > 3:
-                    player4Deck.append(random.choice(allCards))
-                    player4Deck.append(random.choice(allCards))
-                elif playerAmount == 2:
-                    MainPlayerDeck.append(random.choice(allCards))
-                    MainPlayerDeck.append(random.choice(allCards))
-            player3Deck.remove(possibleR)
-        if playerAmount == 3:
-            time.sleep(1)
-            beurtSpeler()
-    if name == player4Name:
-        print("Deck:",player4Deck)
-    if name == player5Name:
-        print("Deck:",player5Deck)
-    if name == player6Name:
-        print("Deck:",player6Deck)
-    if name == player7Name:
-        print("Deck:",player7Deck)
-    if name == player8Name:
-        print("Deck:",player8Deck)
-    if name == player9Name:
-        print("Deck:",player9Deck)
-    if name == player10Name:
-        print("Deck:",player10Deck)
+    if len(possible) == 0:
+        player3Deck.append(random.choice(allCards))
+        print(name,"heeft een kaart gepakt.")
+    elif len(possible) > 0:
+        print(name, "heeft",possibleR,"gespeeld.")
+        pile.append(possibleR)
+        posSplit = possibleR.split(" ",1)
+        if posSplit[-1] == "neem-twee":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 4:
+                for x in range(2):
+                    neemTwee3 = player4Deck.append(random.choice(allCards))
+                    allCards.remove(neemTwee3)
+            elif playerAmount == 3:
+                for x in range(2):
+                    neemTwee = MainPlayerDeck.append(random.choice(allCards))
+                    allCards.remove(neemTwee)
+        elif posSplit[-1] == "neem-vier":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 3:
+                for x in range(4):
+                    neemTwee2 = random.choice(allCards)
+                    player3Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 2:
+                for x in range(4):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+        player3Deck.remove(possibleR)
+    if playerAmount == 3:
+        time.sleep(1)
+        beurtSpeler()
+    elif playerAmount >= 4:
+        time.sleep(1)
+        AI4(player4Name)
+
+def AI4(name):
+    print(name,"is aan de beurt.")
+    time.sleep(0.5)
+    possible = []
+    x = 0
+    global Reverse
+    if len(player4Deck) == 0:
+        print("\n",name,"hebt geen kaarten meer over en daarmee heb je het spel gewonnen, gefeliciteerd!")
+        exit()
+    for i in range(len(player4Deck)):
+            card = player4Deck[x]
+            split = card.split(" ",1)
+            split2 = pile[-1].split(" ",1)
+            if split[0] == "Wild":
+                possible.append(card)
+                possibleR = random.choice(possible)
+            if split[0] != "Wild":
+                if split[0] == split2[0]:
+                    possible.append(card)
+                    possibleR = random.choice(possible)
+                if split[-1] == split2[-1]:
+                    possible.append(card)
+                    possibleR = random.choice(possible)
+            x+=1
+    if len(possible) == 0:
+        player4Deck.append(random.choice(allCards))
+        print(name,"heeft een kaart gepakt.")
+    elif len(possible) > 0:
+        print(name, "heeft",possibleR,"gespeeld.")
+        pile.append(possibleR)
+        posSplit = possibleR.split(" ",1)
+        if posSplit[-1] == "neem-twee":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 5:
+                for x in range(2):
+                    neemTwee2 = random.choice(allCards)
+                    player5Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 4:
+                for x in range(2):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+        elif posSplit[-1] == "neem-vier":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 5:
+                for x in range(4):
+                    neemTwee2 = random.choice(allCards)
+                    player5Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 4:
+                for x in range(4):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+    if playerAmount == 4:
+        time.sleep(1)
+        beurtSpeler()
+    elif playerAmount >= 5:
+        time.sleep(1)
+        AI5(player5Name)
+
+def AI5(name):
+    print(name,"is aan de beurt.")
+    time.sleep(0.5)
+    possible = []
+    x = 0
+    global Reverse
+    if len(player5Deck) == 0:
+        print("\n",name,"hebt geen kaarten meer over en daarmee heb je het spel gewonnen, gefeliciteerd!")
+        exit()
+    for i in range(len(player5Deck)):
+            card = player5Deck[x]
+            split = card.split(" ",1)
+            split2 = pile[-1].split(" ",1)
+            if split[0] == "Wild":
+                possible.append(card)
+                possibleR = random.choice(possible)
+            if split[0] != "Wild":
+                if split[0] == split2[0]:
+                    possible.append(card)
+                    possibleR = random.choice(possible)
+                if split[-1] == split2[-1]:
+                    possible.append(card)
+                    possibleR = random.choice(possible)
+            x+=1
+    if len(possible) == 0:
+        player5Deck.append(random.choice(allCards))
+        print(name,"heeft een kaart gepakt.")
+    elif len(possible) > 0:
+        print(name, "heeft",possibleR,"gespeeld.")
+        pile.append(possibleR)
+        posSplit = possibleR.split(" ",1)
+        if posSplit[-1] == "neem-twee":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 6:
+                for x in range(2):
+                    neemTwee2 = random.choice(allCards)
+                    player6Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 5:
+                for x in range(2):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+        elif posSplit[-1] == "neem-vier":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 6:
+                for x in range(4):
+                    neemTwee2 = random.choice(allCards)
+                    player6Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 5:
+                for x in range(4):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+    if playerAmount == 5:
+        time.sleep(1)
+        beurtSpeler()
+    elif playerAmount >= 6:
+        time.sleep(1)
+        AI6(player6Name)
+
+def AI6(name):
+    print(name,"is aan de beurt.")
+    time.sleep(0.5)
+    possible = []
+    x = 0
+    global Reverse
+    if len(player6Deck) == 0:
+        print("\n",name,"hebt geen kaarten meer over en daarmee heb je het spel gewonnen, gefeliciteerd!")
+        exit()
+    for i in range(len(player6Deck)):
+            card = player6Deck[x]
+            split = card.split(" ",1)
+            split2 = pile[-1].split(" ",1)
+            if split[0] == "Wild":
+                possible.append(card)
+                possibleR = random.choice(possible)
+            if split[0] != "Wild":
+                if split[0] == split2[0]:
+                    possible.append(card)
+                    possibleR = random.choice(possible)
+                if split[-1] == split2[-1]:
+                    possible.append(card)
+                    possibleR = random.choice(possible)
+            x+=1
+    if len(possible) == 0:
+        player6Deck.append(random.choice(allCards))
+        print(name,"heeft een kaart gepakt.")
+    elif len(possible) > 0:
+        print(name, "heeft",possibleR,"gespeeld.")
+        pile.append(possibleR)
+        posSplit = possibleR.split(" ",1)
+        if posSplit[-1] == "neem-twee":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 7:
+                for x in range(2):
+                    neemTwee2 = random.choice(allCards)
+                    player7Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 6:
+                for x in range(2):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+        elif posSplit[-1] == "neem-vier":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 7:
+                for x in range(4):
+                    neemTwee2 = random.choice(allCards)
+                    player7Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 6:
+                for x in range(4):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+    if playerAmount == 6:
+        time.sleep(1)
+        beurtSpeler()
+    elif playerAmount >= 7:
+        time.sleep(1)
+        AI7(player7Name)
+           
+def AI7(name):
+    print(name,"is aan de beurt.")
+    time.sleep(0.5)
+    possible = []
+    x = 0
+    global Reverse
+    if len(player7Deck) == 0:
+        print("\n",name,"hebt geen kaarten meer over en daarmee heb je het spel gewonnen, gefeliciteerd!")
+        exit()
+    for i in range(len(player7Deck)):
+            card = player7Deck[x]
+            split = card.split(" ",1)
+            split2 = pile[-1].split(" ",1)
+            if split[0] == "Wild":
+                possible.append(card)
+                possibleR = random.choice(possible)
+            if split[0] != "Wild":
+                if split[0] == split2[0]:
+                    possible.append(card)
+                    possibleR = random.choice(possible)
+                if split[-1] == split2[-1]:
+                    possible.append(card)
+                    possibleR = random.choice(possible)
+            x+=1
+    if len(possible) == 0:
+        player6Deck.append(random.choice(allCards))
+        print(name,"heeft een kaart gepakt.")
+    elif len(possible) > 0:
+        print(name, "heeft",possibleR,"gespeeld.")
+        pile.append(possibleR)
+        posSplit = possibleR.split(" ",1)
+        if posSplit[-1] == "neem-twee":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 8:
+                for x in range(2):
+                    neemTwee2 = random.choice(allCards)
+                    player8Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 7:
+                for x in range(2):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+        elif posSplit[-1] == "neem-vier":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 8:
+                for x in range(4):
+                    neemTwee2 = random.choice(allCards)
+                    player8Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 7:
+                for x in range(4):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+    if playerAmount == 7:
+        time.sleep(1)
+        beurtSpeler()
+    elif playerAmount >= 8:
+        time.sleep(1)
+        AI8(player8Name)
+
+def AI8(name):
+    print(name,"is aan de beurt.")
+    time.sleep(0.5)
+    possible = []
+    x = 0
+    global Reverse
+    if len(player8Deck) == 0:
+        print("\n",name,"hebt geen kaarten meer over en daarmee heb je het spel gewonnen, gefeliciteerd!")
+        exit()
+    for i in range(len(player8Deck)):
+            card = player8Deck[x]
+            split = card.split(" ",1)
+            split2 = pile[-1].split(" ",1)
+            if split[0] == "Wild":
+                possible.append(card)
+                possibleR = random.choice(possible)
+            if split[0] != "Wild":
+                if split[0] == split2[0]:
+                    possible.append(card)
+                    possibleR = random.choice(possible)
+                if split[-1] == split2[-1]:
+                    possible.append(card)
+                    possibleR = random.choice(possible)
+            x+=1
+    if len(possible) == 0:
+        player6Deck.append(random.choice(allCards))
+        print(name,"heeft een kaart gepakt.")
+    elif len(possible) > 0:
+        print(name, "heeft",possibleR,"gespeeld.")
+        pile.append(possibleR)
+        posSplit = possibleR.split(" ",1)
+        if posSplit[-1] == "neem-twee":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 9:
+                for x in range(2):
+                    neemTwee2 = random.choice(allCards)
+                    player9Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 8:
+                for x in range(2):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+        elif posSplit[-1] == "neem-vier":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 9:
+                for x in range(4):
+                    neemTwee2 = random.choice(allCards)
+                    player9Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 8:
+                for x in range(4):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+    if playerAmount == 8:
+        time.sleep(1)
+        beurtSpeler()
+    elif playerAmount >= 9:
+        time.sleep(1)
+        AI9(player9Name)
+
+def AI9(name):
+    print(name,"is aan de beurt.")
+    time.sleep(0.5)
+    possible = []
+    x = 0
+    global Reverse
+    if len(player9Deck) == 0:
+        print("\n",name,"hebt geen kaarten meer over en daarmee heb je het spel gewonnen, gefeliciteerd!")
+        exit()
+    for i in range(len(player9Deck)):
+            card = player9Deck[x]
+            split = card.split(" ",1)
+            split2 = pile[-1].split(" ",1)
+            if split[0] == "Wild":
+                possible.append(card)
+                possibleR = random.choice(possible)
+            if split[0] != "Wild":
+                if split[0] == split2[0]:
+                    possible.append(card)
+                    possibleR = random.choice(possible)
+                if split[-1] == split2[-1]:
+                    possible.append(card)
+                    possibleR = random.choice(possible)
+            x+=1
+    if len(possible) == 0:
+        player6Deck.append(random.choice(allCards))
+        print(name,"heeft een kaart gepakt.")
+    elif len(possible) > 0:
+        print(name, "heeft",possibleR,"gespeeld.")
+        pile.append(possibleR)
+        posSplit = possibleR.split(" ",1)
+        if posSplit[-1] == "neem-twee":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 10:
+                for x in range(2):
+                    neemTwee2 = random.choice(allCards)
+                    player10Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 9:
+                for x in range(2):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+        elif posSplit[-1] == "neem-vier":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount >= 10:
+                for x in range(4):
+                    neemTwee2 = random.choice(allCards)
+                    player10Deck.append(neemTwee2)
+                    allCards.remove(neemTwee2)
+            elif playerAmount == 9:
+                for x in range(4):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+    if playerAmount == 9:
+        time.sleep(1)
+        beurtSpeler()
+    elif playerAmount >= 10:
+        time.sleep(1)
+        AI10(player10Name)
+
+def AI10(name):
+    print(name,"is aan de beurt.")
+    time.sleep(0.5)
+    possible = []
+    x = 0
+    global Reverse
+    if len(player10Deck) == 0:
+        print("\n",name,"hebt geen kaarten meer over en daarmee heb je het spel gewonnen, gefeliciteerd!")
+        exit()
+    for i in range(len(player10Deck)):
+            card = player10Deck[x]
+            split = card.split(" ",1)
+            split2 = pile[-1].split(" ",1)
+            if split[0] == "Wild":
+                possible.append(card)
+                possibleR = random.choice(possible)
+            if split[0] != "Wild":
+                if split[0] == split2[0]:
+                    possible.append(card)
+                    possibleR = random.choice(possible)
+                if split[-1] == split2[-1]:
+                    possible.append(card)
+                    possibleR = random.choice(possible)
+            x+=1
+    if len(possible) == 0:
+        player6Deck.append(random.choice(allCards))
+        print(name,"heeft een kaart gepakt.")
+    elif len(possible) > 0:
+        print(name, "heeft",possibleR,"gespeeld.")
+        pile.append(possibleR)
+        posSplit = possibleR.split(" ",1)
+        if posSplit[-1] == "neem-twee":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount == 10:
+                for x in range(2):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+        elif posSplit[-1] == "neem-vier":
+            print(name,"heeft neem-twee opgelegd, de volgende speler krijgt dus 2 kaarten")
+            if playerAmount == 10:
+                for x in range(4):
+                    neemTwee = random.choice(allCards)
+                    MainPlayerDeck.append(neemTwee)
+                    allCards.remove(neemTwee)
+    if playerAmount == 10:
+        time.sleep(1)
+        beurtSpeler()
+        
 
 def namen():
     print("\nHallo",username,", je speelt vandaag tegen:")
@@ -392,48 +864,45 @@ pile.append(random.choice(allCards))
 beurtSpeler()
 while playing == True:
     for i in range(playerAmount):
-        if i == 1:
-            beurtAI(player2Name)
+        if i == 0:
+            if len(MainPlayerDeck) == 0:
+                gewonnen(username)
+                playing = False
+        elif i == 1:
+            if len(player2Deck) == 0:
+                gewonnen(player2Name)
+                playing = False
         elif i == 2:
-            beurtAI(player3Name)
+            if len(player3Deck) == 0:
+                gewonnen(player3Name)
+                playing = False
         elif i == 3:
-            beurtAI(player4Name)
+            if len(player4Deck) == 0:
+                gewonnen(player4Name)
+                playing = False
         elif i == 4:
-            beurtAI(player5Name)
+            if len(player5Deck) == 0:
+                gewonnen(player5Name)
+                playing = False
         elif i == 5:
-            beurtAI(player6Name)
+            if len(player6Deck) == 0:
+                gewonnen(player6Name)
+                playing = False
         elif i == 6:
-            beurtAI(player7Name)
+            if len(player7Deck) == 0:
+                gewonnen(player7Name)
+                playing = False
         elif i == 7:
-            beurtAI(player8Name)
+            if len(player8Deck) == 0:
+                gewonnen(player8Name)
+                playing = False
         elif i == 8:
-            beurtAI(player9Name)
+            if len(player9Deck) == 0:
+                gewonnen(player9Name)
+                playing = False
         elif i == 9:
-            beurtAI(player10Name)
+            if len(player10Deck) == 0:
+                gewonnen(player10Name)
+                playing = False
         else:
             print("")
-    if len(MainPlayerDeck) == 0:
-        gewonnen(username)
-    elif len(player2Deck) == 0:
-        gewonnen(player2Name)
-    elif len(player3Deck) == 0:
-        gewonnen(player3Name)
-    elif len(player4Deck) == 0:
-        gewonnen(player4Name)
-    elif len(player5Deck) == 0:
-        gewonnen(player5Name)
-    elif len(player6Deck) == 0:
-        gewonnen(player6Name)
-    elif len(player7Deck) == 0:
-        gewonnen(player7Name)
-    elif len(player8Deck) == 0:
-        gewonnen(player8Name)
-    elif len(player9Deck) == 0:
-        gewonnen(player9Name)
-    elif len(player10Deck) == 0:
-        gewonnen(player10Name)
-
-
-# for x in range(len(MainPlayerDeck)+1):
-#     time.sleep(0.5)
-#     beurtSpeler()
